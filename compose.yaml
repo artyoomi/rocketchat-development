@@ -1,0 +1,28 @@
+include:
+  - path: ${PROXY_DIR}/compose.yaml
+    project_directory: ${PROXY_DIR}
+
+services:
+  chat:
+    build:
+      context: ${ROCKETCHAT_DIR}
+      dockerfile: .devcontainer/Dockerfile
+    container_name: ${APP_CONT_NAME}
+    working_dir: /${APP_CONT_NAME}
+    user: ${USER_ID}:${GROUP_ID}
+    volumes:
+      - ${PWD}/${ROCKETCHAT_DIR}:/${APP_CONT_NAME}
+      - rocketchat_local:/usr/local
+      - rocketchat_home:/home/vscode
+    network_mode: "container:xray-tproxy"
+    depends_on:
+      - xray-tproxy
+    stdin_open: true
+    tty: true
+    command: bash
+  xray-tproxy:
+    ports:
+      - "3000:3000"
+volumes:
+  rocketchat_local:
+  rocketchat_home:
